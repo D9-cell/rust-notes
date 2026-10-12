@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rust Cheatsheet</title>
+<link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="assets/engine.js"></script>
+<script>
+(function () {
+  var el = RUSTLAB.el, app = document.getElementById('app');
+  app.appendChild(RUSTLAB.nav('cheatsheet.html'));
+  var head = el('div', 'head');
+  head.appendChild(el('div', 'eyebrow', 'One page, after the chapters'));
+  head.appendChild(el('h1', null, 'Rust Cheatsheet'));
+  head.appendChild(el('div', 'lede', 'The decisions you make over and over, in table form. Each row names the chapter to reread.'));
+  app.appendChild(head);
+
+  var groups = [
+    ['Which parameter type?', [
+      { table: [
+        ['I want to…', 'Write', 'Ch'],
+        ['only read a value', '`&T` (`&str`, `&[T]` for text and lists)', '4'],
+        ['change a value in place', '`&mut T`', '4'],
+        ['take it and keep or consume it', '`T`', '4'],
+        ['accept anything printable or convertible', '`impl Display`, `impl Into<String>`, `impl AsRef<str>`', '10'],
+        ['accept a closure', '`impl Fn(..)`, `FnMut`, `FnOnce` (weakest that works)', '13'],
+        ['return a value that may not exist', '`Option<T>`', '6'],
+        ['return a value that may fail', '`Result<T, E>`', '9']
+      ]}
+    ]],
+    ['Which pointer or wrapper?', [
+      { table: [
+        ['Need', 'Use', 'Ch'],
+        ['one owner, on the heap, or a recursive type', '`Box<T>`', '15'],
+        ['several owners, one thread', '`Rc<T>`', '15'],
+        ['several owners, many threads', '`Arc<T>`', '16'],
+        ['mutate behind a shared reference, one thread', '`RefCell<T>` (`Cell<T>` for Copy)', '15'],
+        ['mutate shared data across threads', '`Arc<Mutex<T>>` (`RwLock` for read-heavy)', '16'],
+        ['non-owning back pointer', '`Weak<T>`', '15'],
+        ['different types behind one trait', '`Box<dyn Trait>`', '18']
+      ]}
+    ]],
+    ['Which collection?', [
+      { table: [
+        ['Need', 'Use', 'Ch'],
+        ['growable list', '`Vec<T>`', '8'],
+        ['look up by key', '`HashMap<K, V>` (`BTreeMap` if sorted order matters)', '8'],
+        ['unique values', '`HashSet<T>` / `BTreeSet<T>`', '8'],
+        ['queue from both ends', '`VecDeque<T>`', 'std'],
+        ['text you own / text you borrow', '`String` / `&str`', '8'],
+        ['fixed size, on the stack', '`[T; N]`', '3']
+      ]}
+    ]],
+    ['The borrow rules in one place', [
+      { list: [
+        'Each value has one owner; the value is dropped when the owner goes out of scope. (4)',
+        'Assigning or passing a non-Copy value moves it. `clone()` copies deeply. (4)',
+        'One `&mut T` or any number of `&T`, never both. A borrow ends at its last use. (4)',
+        'A reference must not outlive what it points to; lifetimes describe the relation. (10)',
+        '`Rc`/`RefCell` move the check to run time; `Mutex` makes it thread safe; `Send`/`Sync` police threads. (15, 16)'
+      ]}
+    ]],
+    ['Errors', [
+      { table: [
+        ['Situation', 'Do', 'Ch'],
+        ['bug or broken invariant', '`panic!`, `assert!`, `unwrap` / `expect("why")`', '9'],
+        ['expected failure', 'return `Result`; use `?` to propagate', '9'],
+        ['library error type', 'an enum implementing `Display`, `Error` and `From`', '9'],
+        ['application error type', '`Box<dyn Error>` or the `anyhow` crate', '9'],
+        ['missing value', '`Option`; `ok_or(err)` converts to `Result`', '6']
+      ]}
+    ]],
+    ['Iterator toolbox', [
+      { table: [
+        ['Goal', 'Call'],
+        ['transform each', '`.map(|x| ..)`'],
+        ['keep some', '`.filter(|x| ..)`, `.take_while`, `.skip`'],
+        ['pair with index / another list', '`.enumerate()`, `.zip(other)`'],
+        ['collapse to one value', '`.sum()`, `.count()`, `.fold(init, |acc, x| ..)`, `.max()`, `.min()`'],
+        ['test', '`.any(..)`, `.all(..)`, `.find(..)`, `.position(..)`'],
+        ['gather', '`.collect::<Vec<_>>()`, `.collect::<HashMap<_, _>>()`, `.collect::<Result<Vec<_>, _>>()`'],
+        ['borrow / mutate / consume', '`.iter()`, `.iter_mut()`, `.into_iter()`']
+      ]}
+    ]],
+    ['Cargo', [
+      { table: [
+        ['Command', 'Use'],
+        ['`cargo new name` / `cargo new --lib name`', 'start a project'],
+        ['`cargo check`', 'fast type check while editing'],
+        ['`cargo run` / `cargo run --release`', 'build and run'],
+        ['`cargo test` / `cargo test name -- --nocapture`', 'run tests, show output'],
+        ['`cargo add crate`', 'add a dependency'],
+        ['`cargo fmt` / `cargo clippy`', 'format / lint'],
+        ['`cargo doc --open`', 'build and view docs'],
+        ['`cargo build --release`', 'optimised build for speed measurements']
+      ]}
+    ]],
+    ['Derive and common traits', [
+      { table: [
+        ['Trait', 'Gives you', 'Derive?'],
+        ['`Debug`', '`{:?}` printing', 'yes'],
+        ['`Display`', '`{}` printing, `.to_string()`', 'no, write it'],
+        ['`Clone` / `Copy`', 'explicit duplicate / implicit bitwise copy', 'yes'],
+        ['`PartialEq` / `Eq`', '`==`', 'yes'],
+        ['`PartialOrd` / `Ord`', '`<`, sorting', 'yes'],
+        ['`Hash`', 'use as a `HashMap` key', 'yes'],
+        ['`Default`', '`T::default()`', 'yes'],
+        ['`From` / `Into`', 'conversions, and what `?` uses', 'no, write it'],
+        ['`Drop`', 'cleanup at scope end', 'no, write it']
+      ]}
+    ]]
+  ];
+  groups.forEach(function (g) {
+    var s = el('div', 'sec');
+    s.appendChild(el('h2', null, g[0]));
+    var host = el('div'); host.style.cssText = 'display:flex;flex-direction:column;gap:14px';
+    RUSTLAB.blocks(host, g[1]);
+    s.appendChild(host);
+    app.appendChild(s);
+  });
+})();
+</script>
+</body>
+</html>

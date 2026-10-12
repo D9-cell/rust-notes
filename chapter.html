@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rust Book Notes</title>
+<link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="assets/engine.js"></script>
+<script src="data/modules/index.js"></script>
+<script src="data/roadmap.js"></script>
+<script>
+(function () {
+  var el = RUSTLAB.el, app = document.getElementById('app');
+  var id = new URLSearchParams(location.search).get('c');
+  var idx = RUSTLAB.roadmap.map(function (r) { return r.id; }).indexOf(id);
+  app.appendChild(RUSTLAB.nav('chapters.html'));
+  if (idx < 0) { app.appendChild(el('div', 'lede', 'Unknown chapter. Pick one from the Book Notes page.')); return; }
+  var meta = RUSTLAB.roadmap[idx];
+
+  // Renders the chapter once its data file loads.
+  function render(ch) {
+    document.title = 'Ch ' + meta.n + ' ' + meta.t + ' — Rust Book Notes';
+    var head = el('div', 'head');
+    head.appendChild(el('div', 'eyebrow', 'Chapter ' + meta.n));
+    head.appendChild(el('h1', null, meta.t));
+    head.appendChild(RUSTLAB.inline(el('div', 'lede'), ch.lede));
+    app.appendChild(head);
+
+    var toc = el('div', 'toc');
+    ch.sections.forEach(function (s, k) {
+      var a = el('a', null, (k + 1) + '. ' + s.h); a.href = '#s' + k; toc.appendChild(a);
+    });
+    app.appendChild(toc);
+
+    var body = el('div', 'chap');
+    ch.sections.forEach(function (s, k) {
+      var h = el('h2', null, (k + 1) + '. ' + s.h); h.id = 's' + k;
+      body.appendChild(h);
+      RUSTLAB.blocks(body, s.b);
+    });
+    app.appendChild(body);
+
+    var recap = el('div', 'recap');
+    recap.appendChild(el('h3', null, 'Remember'));
+    RUSTLAB.blocks(recap, [{ list: ch.recap }]);
+    app.appendChild(recap);
+
+    var links = el('div', 'tags');
+    (meta.labs || []).forEach(function (lid) {
+      var m = RUSTLAB.index.filter(function (x) { return x.id === lid; })[0];
+      if (!m) return;
+      var a = el('a', 'tag vis', 'lab: ' + m.title); a.href = 'lab.html?m=' + lid; links.appendChild(a);
+    });
+    if (meta.project) { var p = el('a', 'tag build', 'project: ' + meta.project); p.href = 'projects.html#' + meta.project; links.appendChild(p); }
+    app.appendChild(links);
+
+    var st = RUSTLAB.load(); st.read = st.read || {};
+    var done = el('button', 'b');
+    // Updates the button label from saved state.
+    function paint() { done.textContent = st.read[id] ? 'read ✓ (click to undo)' : 'mark chapter as read'; }
+    done.onclick = function () { st.read[id] = !st.read[id]; RUSTLAB.save(st); paint(); };
+    paint();
+    app.appendChild(done);
+
+    var pager = el('div', 'pager');
+    var prev = RUSTLAB.roadmap[idx - 1], next = RUSTLAB.roadmap[idx + 1];
+    var l = el('a', null, prev ? '← ' + prev.n + ' ' + prev.t : ''); if (prev) l.href = 'chapter.html?c=' + prev.id;
+    var r = el('a', null, next ? next.n + ' ' + next.t + ' →' : ''); if (next) r.href = 'chapter.html?c=' + next.id;
+    pager.appendChild(l); pager.appendChild(r);
+    app.appendChild(pager);
+  }
+
+  var sc = document.createElement('script');
+  sc.src = 'data/chapters/' + id + '.js';
+  sc.onload = function () { render(RUSTLAB.chapters[id]); };
+  sc.onerror = function () { app.appendChild(el('div', 'lede', 'This chapter file is missing.')); };
+  document.head.appendChild(sc);
+})();
+</script>
+</body>
+</html>

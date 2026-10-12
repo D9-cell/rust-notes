@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rust Why Lab</title>
+<link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="assets/engine.js"></script>
+<script src="data/modules/index.js"></script>
+<script>
+(function () {
+  var el = RUSTLAB.el;
+  var id = new URLSearchParams(location.search).get('m');
+  var app = document.getElementById('app');
+  var meta = RUSTLAB.index.filter(function (m) { return m.id === id; })[0];
+
+  // Returns the shared navigation bar.
+  function nav() { return RUSTLAB.nav('labs.html'); }
+
+  // Creates a titled section.
+  function section(title, intro) {
+    var s = el('div', 'sec');
+    s.appendChild(el('h2', null, title));
+    if (intro) s.appendChild(el('div', 'p', intro));
+    app.appendChild(s);
+    return s;
+  }
+
+  // Renders the whole module page once its data file loads.
+  function render(m) {
+    document.title = m.title + ' — Rust Why Lab';
+    var head = el('div', 'head');
+    head.appendChild(el('div', 'eyebrow', 'Chapter ' + m.chapter + ' · ' + m.title));
+    head.appendChild(el('h1', null, m.headline));
+    head.appendChild(el('div', 'lede', m.intro));
+    app.appendChild(head);
+
+    var s1 = section('1. Step through it', m.play.intro);
+    var h1 = el('div', 'card'); s1.appendChild(h1);
+    RUSTLAB.mountPlayer(h1, m.play);
+
+    var s2 = section('2. Break it: ' + m.breakIt.label, m.breakIt.intro);
+    var h2 = el('div', 'card'); s2.appendChild(h2);
+    RUSTLAB.mountPlayer(h2, m.breakIt);
+    s2.appendChild(el('div', 'tryit', m.breakIt.lesson));
+
+    var s3 = section('3. Why not the other way?', m.whyNot.question);
+    var t = el('table', 'w');
+    var hr = el('tr');
+    ['Approach', 'What it does', 'What it costs'].forEach(function (h) { hr.appendChild(el('th', null, h)); });
+    t.appendChild(hr);
+    m.whyNot.rows.forEach(function (r) {
+      var tr = el('tr', r[0] === 'Rust' ? 'rust' : '');
+      r.forEach(function (c) { tr.appendChild(el('td', null, c)); });
+      t.appendChild(tr);
+    });
+    s3.appendChild(t);
+
+    var s4 = section('4. Read the real compiler error', m.error.intro);
+    s4.appendChild(el('pre', 'err', m.error.text));
+    var dec = el('div', 'decode');
+    m.error.decode.forEach(function (d) {
+      var row = el('div');
+      row.appendChild(el('code', null, d[0]));
+      row.appendChild(el('span', null, d[1]));
+      dec.appendChild(row);
+    });
+    s4.appendChild(dec);
+
+    var s5 = section('5. Now you type it');
+    s5.appendChild(el('div', 'tryit', m.tryIt));
+
+    var done = el('button', 'b', 'mark this lab understood');
+    var st = RUSTLAB.load();
+    // Updates the done button label from saved state.
+    function paint() { done.textContent = st.modules[m.id] ? 'understood ✓ (click to undo)' : 'mark this lab understood'; }
+    done.onclick = function () { st.modules[m.id] = !st.modules[m.id]; RUSTLAB.save(st); paint(); };
+    paint();
+    s5.appendChild(done);
+    app.insertBefore(nav(), app.firstChild);
+  }
+
+  if (!meta) { app.appendChild(nav()); app.appendChild(el('div', 'lede', 'Unknown lab. Pick one from the Why Lab page.')); return; }
+  var sc = document.createElement('script');
+  sc.src = 'data/modules/' + meta.id + '.js';
+  sc.onload = function () { render(RUSTLAB.modules[meta.id]); };
+  document.head.appendChild(sc);
+})();
+</script>
+</body>
+</html>

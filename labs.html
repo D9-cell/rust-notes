@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rust Why Lab</title>
+<link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="assets/engine.js"></script>
+<script src="data/modules/index.js"></script>
+<script>
+(function () {
+  var el = RUSTLAB.el, app = document.getElementById('app'), st = RUSTLAB.load();
+  app.appendChild(RUSTLAB.nav('labs.html'));
+  var head = el('div', 'head');
+  head.appendChild(el('div', 'eyebrow', 'Why it works this way'));
+  head.appendChild(el('h1', null, 'Why Lab'));
+  head.appendChild(el('div', 'lede', 'Each lab steps through a short program, then breaks a Rust rule on purpose so you see the bug the rule prevents, compares the design with C, C++ and Java, and decodes the real compiler error.'));
+  app.appendChild(head);
+  var grid = el('div', 'mods');
+  RUSTLAB.index.forEach(function (m) {
+    var a = el('a', 'mod'); a.href = 'lab.html?m=' + m.id;
+    a.appendChild(el('div', 'eyebrow', 'Chapter ' + m.chapter + (st.modules[m.id] ? ' · understood ✓' : '')));
+    a.appendChild(el('div', 't', m.title));
+    a.appendChild(el('div', 'd', m.summary));
+    grid.appendChild(a);
+  });
+  app.appendChild(grid);
+})();
+</script>
+</body>
+</html>

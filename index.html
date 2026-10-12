@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rust Learning Lab</title>
+<link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="assets/engine.js"></script>
+<script src="data/modules/index.js"></script>
+<script src="data/roadmap.js"></script>
+<script>
+(function () {
+  var el = RUSTLAB.el, app = document.getElementById('app'), st = RUSTLAB.load();
+
+  app.appendChild(RUSTLAB.nav('index.html'));
+
+  var head = el('div', 'head');
+  head.appendChild(el('div', 'eyebrow', 'The Rust Book, mapped to practice'));
+  head.appendChild(el('h1', null, 'Rust Learning Lab'));
+  head.appendChild(el('div', 'lede', 'All 21 chapters of the official book as readable notes, with visual labs where text alone fails and a hands-on project per chapter. Click a chapter title to read it. This page is the map.'));
+  app.appendChild(head);
+
+  var lg = el('div', 'legend');
+  [['#6b8ca3', 'Reading: concepts click from text alone'], ['#c7795a', 'Needs a visual: open the matching lab'], ['#8aa66b', 'Build checkpoint: stop and code']].forEach(function (l) {
+    var d = el('div'); var i = el('i'); i.style.background = l[0]; d.appendChild(i); d.appendChild(document.createTextNode(l[1])); lg.appendChild(d);
+  });
+  app.appendChild(lg);
+
+  var list = el('div');
+  RUSTLAB.roadmap.forEach(function (c) {
+    var row = el('div', 'row');
+    row.appendChild(el('div', 'n', c.n));
+    var mid = el('div');
+    var tt = el('div', 't'); var ta = el('a', null, c.t); ta.href = 'chapter.html?c=' + c.id; ta.style.cssText = 'color:inherit;text-decoration:none'; tt.appendChild(ta); mid.appendChild(tt);
+    mid.appendChild(el('div', 'd', c.d));
+    row.appendChild(mid);
+    var tags = el('div', 'tags');
+    var names = { read: ['read', 'reading'], vis: ['vis', 'visual'], build: ['build', 'build'] };
+    c.tags.forEach(function (t) { tags.appendChild(el('span', 'tag ' + names[t][0], names[t][1])); });
+    (c.labs || []).forEach(function (id) {
+      var m = RUSTLAB.index.filter(function (x) { return x.id === id; })[0];
+      var a = el('a', 'tag vis', (st.modules[id] ? '✓ ' : '') + m.title); a.href = 'lab.html?m=' + id; tags.appendChild(a);
+    });
+    if (c.project) { var p = el('a', 'tag build', 'project'); p.href = 'projects.html#' + c.project; tags.appendChild(p); }
+    row.appendChild(tags);
+    list.appendChild(row);
+  });
+  app.appendChild(list);
+
+  app.appendChild(el('div', 'p', 'How to use this: read the chapter notes, open its lab where a visual is flagged, then build the project before moving on. Reading progress and lab progress are saved in your browser only.'));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rust Project Tracker</title>
+<link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="assets/engine.js"></script>
+<script src="data/modules/index.js"></script>
+<script src="data/projects.js"></script>
+<script>
+(function () {
+  var el = RUSTLAB.el, app = document.getElementById('app'), st = RUSTLAB.load();
+  app.appendChild(RUSTLAB.nav('projects.html'));
+  var head = el('div', 'head');
+  head.appendChild(el('div', 'eyebrow', 'Hands on, in reading order'));
+  head.appendChild(el('h1', null, 'Project Tracker'));
+  head.appendChild(el('div', 'lede', 'Each project drills one concept you cannot get from reading alone. The tests are the spec; you write every line of src/. Tell me in chat when you start one and I will review your code with questions and hints.'));
+  app.appendChild(head);
+
+  // Builds a labelled block of brief text.
+  function block(parent, title, text, pre) {
+    var d = el('div');
+    d.appendChild(el('h3', null, title));
+    d.appendChild(el(pre ? 'pre' : 'div', pre ? null : 'p', text));
+    parent.appendChild(d);
+  }
+
+  RUSTLAB.projects.forEach(function (p) {
+    var d = el('details', 'proj'); d.id = p.id;
+    if (location.hash === '#' + p.id) d.open = true;
+    var sum = el('summary');
+    sum.appendChild(el('div', 'mono', p.ch));
+    var mid = el('div');
+    mid.appendChild(el('div', 't', p.title));
+    mid.appendChild(el('div', 'd', p.drills));
+    sum.appendChild(mid);
+    var sel = el('select', 'pill');
+    ['not started', 'in progress', 'done'].forEach(function (s) { var o = el('option', null, s); o.value = s; sel.appendChild(o); });
+    sel.value = st.projects[p.id] || 'not started';
+    sel.onclick = function (e) { e.stopPropagation(); };
+    sel.onchange = function () { st.projects[p.id] = sel.value; RUSTLAB.save(st); };
+    sel.setAttribute('aria-label', 'status of ' + p.title);
+    sum.appendChild(sel);
+    d.appendChild(sum);
+    var b = el('div', 'brief');
+    block(b, 'What you build', p.what);
+    block(b, 'Sample run', p.run, true);
+    block(b, 'Where this shows up for real', p.real);
+    block(b, 'Sibling projects', p.siblings);
+    block(b, 'Files', p.files);
+    block(b, 'Start with', p.start, true);
+    block(b, 'Notes', p.notes);
+    if (p.labs.length) {
+      var l = el('div', 'tags');
+      p.labs.forEach(function (id) {
+        var m = RUSTLAB.index.filter(function (x) { return x.id === id; })[0];
+        var a = el('a', 'tag vis', 'lab: ' + m.title); a.href = 'lab.html?m=' + id; l.appendChild(a);
+      });
+      b.appendChild(l);
+    }
+    d.appendChild(b);
+    app.appendChild(d);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+[workspace]
+resolver = "3"
+members = ["ch02-guessing", "ch04-drill", "ch05-rectangle", "ch06-machine", "ch08-wordfreq", "ch09-parser"]

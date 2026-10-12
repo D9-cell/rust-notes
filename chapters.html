@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rust Book Notes</title>
+<link rel="stylesheet" href="assets/theme.css">
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="assets/engine.js"></script>
+<script src="data/modules/index.js"></script>
+<script src="data/roadmap.js"></script>
+<script>
+(function () {
+  var el = RUSTLAB.el, app = document.getElementById('app'), st = RUSTLAB.load();
+  app.appendChild(RUSTLAB.nav('chapters.html'));
+  var head = el('div', 'head');
+  head.appendChild(el('div', 'eyebrow', 'Read it start to finish'));
+  head.appendChild(el('h1', null, 'Rust Book Notes'));
+  head.appendChild(el('div', 'lede', 'All 21 chapters of the official book rewritten as compact notes: what each idea is, why Rust does it that way, runnable examples with their real output, and the compiler errors you will meet. Open a chapter, read it, then do its lab or project.'));
+  app.appendChild(head);
+  var grid = el('div', 'cgrid');
+  RUSTLAB.roadmap.forEach(function (c) {
+    var a = el('a', 'cc'); a.href = 'chapter.html?c=' + c.id;
+    a.appendChild(el('div', 'eyebrow', 'Chapter ' + c.n + (st.read && st.read[c.id] ? ' · read ✓' : '')));
+    a.appendChild(el('div', 't', c.t));
+    a.appendChild(el('div', 'd', c.d));
+    grid.appendChild(a);
+  });
+  app.appendChild(grid);
+})();
+</script>
+</body>
+</html>

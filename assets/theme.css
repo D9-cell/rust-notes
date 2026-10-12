@@ -106,3 +106,4 @@ pre.ro{margin:0;background:var(--code);border-radius:8px;padding:12px 20px;font-
 .cc{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:18px;text-decoration:none;color:var(--text);display:flex;flex-direction:column;gap:6px}
 .cc:hover{border-color:var(--clay)}.cc .d{font-size:13px;color:#9c9689;line-height:1.5}
 @media(max-width:800px){.cw{max-width:100%}pre.rs{font-size:12.5px}}
+.nav{align-items:center}.nav a.brand{display:flex;align-items:center;gap:10px;color:var(--accent);font-size:15px;margin-right:12px}.nav a.brand img{display:block}

@@ -180,6 +180,13 @@ RUSTLAB.mountPlayer = function (root, data) {
 // Renders the shared navigation bar with the active page highlighted.
 RUSTLAB.nav = function (active) {
   var n = RUSTLAB.el('div', 'nav');
+  if (!document.querySelector('link[rel=icon]')) {
+    var ic = document.createElement('link'); ic.rel = 'icon'; ic.type = 'image/svg+xml'; ic.href = 'assets/logo.svg'; document.head.appendChild(ic);
+  }
+  var brand = RUSTLAB.el('a', 'brand'); brand.href = 'index.html';
+  var img = document.createElement('img'); img.src = 'assets/logo.svg'; img.alt = ''; img.width = 28; img.height = 28;
+  brand.appendChild(img); brand.appendChild(document.createTextNode('Rust Lab'));
+  n.appendChild(brand);
   [['index.html', 'Roadmap'], ['chapters.html', 'Book Notes'], ['labs.html', 'Why Lab'], ['projects.html', 'Projects'], ['cheatsheet.html', 'Cheatsheet']].forEach(function (l) {
     var a = RUSTLAB.el('a', l[0] === active ? 'on' : '', l[1]); a.href = l[0]; n.appendChild(a);
   });
